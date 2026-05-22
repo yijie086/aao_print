@@ -23,7 +23,7 @@ space normalization.
 Single-point example:
 
 ```bash
-aao_gen/aao_norad/aao_xsec \
+./aao_xsec \
   -xB 0.3 \
   -Q2 2.0 \
   -t -0.2 \
