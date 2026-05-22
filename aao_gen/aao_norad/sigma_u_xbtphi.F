@@ -1,6 +1,6 @@
       REAL FUNCTION SIGMA_U_XBTPHI(XB_IN,Q2_IN,T_IN,PHI_IN)
 c
-c     Direct unpolarized cross section interface:
+c     Direct MC cross section interface:
 c       sigma_u = SIGMA_U_XBTPHI(xB,Q2,t,phi)
 c
 c     T_IN is the Mandelstam t in GeV**2.  If a positive value is
@@ -9,7 +9,7 @@ c     PHI_IN is in degrees, matching the existing MAID/AAO routines.
 c
 c     The four-argument function uses a configurable beam energy.  The
 c     default is 10.6 GeV; call SET_SIGMA_U_XBTPHI_CONFIG first to change
-c     the beam energy or MAID options.
+c     the beam energy or the same physics options used by aao_norad.
 c
       IMPLICIT NONE
 
@@ -32,12 +32,16 @@ c
      1                               EBEAM_IN)
 c
 c     Same as SIGMA_U_XBTPHI, but with the beam energy supplied directly.
+c     It converts xB,Q2,t to the variables used by aao_norad and calls
+c     dsigma, so the returned SIGMA0 follows the MC event-generation
+c     cross-section path.
 c
       IMPLICIT NONE
 
       REAL XB_IN,Q2_IN,T_IN,PHI_IN,EBEAM_IN
       REAL MP,MPI0,MPIP
-      REAL W2,W,NU,Y,E1,EPS,T_MANDEL
+      REAL W2,W,NU,T_MANDEL,EP,SIN2
+      REAL*8 THETA_E
       REAL E_PI_CM,P_PI_CM,QV_MAG_CM,NU_CM,COSTH
       REAL SIGMA0,SIGU,SIGT,SIGL,SIGI,SIGIP,ASYM_P
       REAL M_PI
@@ -66,10 +70,11 @@ c
       NU = Q2_IN/(2.0*MP*XB_IN)
       IF (NU.GE.EBEAM_IN) RETURN
 
-      Y = NU/EBEAM_IN
-      E1 = (Y*XB_IN*MP)**2/Q2_IN
-      EPS = (1.0-Y-E1)/(1.0-Y+Y**2/2.0+E1)
-      IF (EPS.LE.0.0 .OR. EPS.GE.1.0) RETURN
+      EP = EBEAM_IN - NU
+      IF (EP.LE.0.0) RETURN
+      SIN2 = Q2_IN/(4.0*EBEAM_IN*EP)
+      IF (SIN2.LE.0.0 .OR. SIN2.GE.1.0) RETURN
+      THETA_E = 2.0D0*DASIN(DSQRT(DBLE(SIN2)))
 
       E_PI_CM = 0.5*(W2+M_PI**2-MP**2)/W
       P_PI_CM = E_PI_CM**2 - M_PI**2
@@ -88,9 +93,9 @@ c
       IF (ABS(COSTH).GE.1.0) RETURN
 
       EHEL = 0
-      CALL MAID_LEE(Q2_IN,W,EPS,COSTH,PHI_IN,CFG_THEORY,CFG_CHANNEL,
-     1              CFG_RESONANCE,SIGMA0,SIGU,SIGT,SIGL,SIGI,SIGIP,
-     1              ASYM_P,EHEL)
+      CALL DSIGMA(THETA_E,Q2_IN,W,COSTH,PHI_IN,CFG_THEORY,
+     1            CFG_CHANNEL,CFG_RESONANCE,SIGMA0,SIGU,SIGT,SIGL,
+     1            SIGI,SIGIP,ASYM_P,EHEL)
 
       SIGMA_U_XBTPHI_E = SIGMA0
 
@@ -103,9 +108,9 @@ c
 c
 c     Configure SIGMA_U_XBTPHI defaults.
 c       EBEAM_IN      : beam energy in GeV
-c       THEORY_OPT    : existing maid_lee theory option, usually 5
-c       CHANNEL_OPT   : 1=pi0, 3=pi+
-c       RESONANCE_OPT : existing maid_lee resonance option, usually 0
+c       THEORY_OPT    : same as aao_norad phys, usually 5
+c       CHANNEL_OPT   : same as aao_norad epirea, 1=pi0, 3=pi+
+c       RESONANCE_OPT : option passed through dsigma to maid_lee
 c
       IMPLICIT NONE
 

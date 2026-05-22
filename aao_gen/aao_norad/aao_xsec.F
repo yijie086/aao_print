@@ -2,6 +2,7 @@
 c
 c     Command line interface:
 c       ./aao_xsec -xB 0.3 -Q2 2.0 -t -0.2 -phi 30 -BeamEnergy 10.6
+c     Returns the same dsigma SIGMA0 used by aao_norad before flux/Jacobian.
 c
       IMPLICIT NONE
 
@@ -71,9 +72,11 @@ c
      1          ARG.EQ.'-beam' .OR. ARG.EQ.'--beam') THEN
           READ(VAL,*,ERR=900) EBEAM
           HAVE_E = 1
-        ELSEIF (ARG.EQ.'-theory' .OR. ARG.EQ.'--theory') THEN
+        ELSEIF (ARG.EQ.'-theory' .OR. ARG.EQ.'--theory' .OR.
+     1          ARG.EQ.'-phys' .OR. ARG.EQ.'--phys') THEN
           READ(VAL,*,ERR=900) THEORY_OPT
-        ELSEIF (ARG.EQ.'-channel' .OR. ARG.EQ.'--channel') THEN
+        ELSEIF (ARG.EQ.'-channel' .OR. ARG.EQ.'--channel' .OR.
+     1          ARG.EQ.'-epirea' .OR. ARG.EQ.'--epirea') THEN
           READ(VAL,*,ERR=900) CHANNEL_OPT
         ELSEIF (ARG.EQ.'-resonance' .OR. ARG.EQ.'--resonance') THEN
           READ(VAL,*,ERR=900) RESONANCE_OPT
@@ -119,7 +122,8 @@ c
       WRITE(6,*) 'Usage:'
       WRITE(6,*) '  ./aao_xsec -xB X -Q2 Q2 -t T -phi PHI',
      1           ' -BeamEnergy E'
-      WRITE(6,*) 'Optional: -theory N -channel N -resonance N'
+      WRITE(6,*) 'Optional: -theory/phys N -channel/epirea N',
+     1           ' -resonance N'
       WRITE(6,*) 'Optional: -table /path/to/maid07-PPpi.tbl'
       WRITE(6,*) '  phi is in degrees; t may be negative t or',
      1           ' positive -t.'

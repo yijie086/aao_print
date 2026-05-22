@@ -1,6 +1,6 @@
 CORE_OBJ=  cgln_amps.o fint.o helicity_amps.o interp.o legendre.o maid_lee.o multipole_amps.o read_sf_file.o sigma_u_xbtphi.o splie2.o splin2.o spline.o splint.o xsection.o
 OBJ=  aao.o aao_norad.o daresbury.o dsigma.o dvmpw.o dvmpx.o timex.o $(CORE_OBJ)
-XSEC_OBJ=  aao_xsec.o $(CORE_OBJ)
+XSEC_OBJ=  aao_xsec.o aao.o daresbury.o dsigma.o dvmpw.o dvmpx.o timex.o $(CORE_OBJ)
 OBJC=  unixtime.o 
 
 #CERNLIBS =  -L/apps/cernlib/x86_64_rhel6_4.7.2/2005/lib  -lmathlib  -lpacklib 
